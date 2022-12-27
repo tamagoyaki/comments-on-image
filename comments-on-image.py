@@ -58,8 +58,10 @@ try:
     with open(csvfilename) as f:
         l = csv.reader(f)
         dcsv = {row[0]: row for row in l}
+        lastkey = next(reversed(dcsv), None)
 except OSError:
     dcsv = {}
+    lastkey = ''
 
 # list all JPG
 jpgs = glob.glob('**/*.JPG', recursive=True)
@@ -76,8 +78,13 @@ layout = [
 window = sg.Window("Edit info", layout, finalize=True, location=(200, 200),
                    keep_on_top=True)
 
+# continue from last time commented file
+try:
+    ix = jpgs.index(lastkey)
+except ValueError:
+    ix = 0
+
 # one jpg at a time
-ix = 0
 while True:
     jpg = jpgs[ix]
     exif = ExImage(jpg)
