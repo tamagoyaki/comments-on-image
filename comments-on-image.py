@@ -77,6 +77,10 @@ layout = [
 ]
 window = sg.Window("Edit info", layout, finalize=True, location=(200, 200),
                    keep_on_top=True, enable_close_attempted_event=True)
+window.bind("<Alt_L><p>", "altp")
+window.bind("<Alt_L><n>", "altn")
+window['prev'].Widget.configure(underline=0, takefocus=0)
+window['next'].Widget.configure(underline=0, takefocus=0)
 
 # continue from last time commented file
 try:
@@ -117,7 +121,7 @@ while True:
     window['rem3'].update(info[6])
 
     event, values = window.read()
-    if event == 'prev' or event == 'next' \
+    if event in ('prev', 'altp') or event in ('next', 'altn') \
        or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
         rem1 = values['rem1'] if values else ''
         rem2 = values['rem2'] if values else ''
@@ -135,12 +139,12 @@ while True:
         info[6] = rem3
         dcsv[jpg] = info
 
-        if event == 'next':
+        if event in ('next', 'altn'):
             ix += 1
             if ix == len(jpgs):
                 ix = 0
 
-        if event == 'prev':
+        if event in ('prev', 'altp'):
             ix -= 1
             if 0 > ix:
                 ix = len(jpgs) -1
