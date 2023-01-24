@@ -76,7 +76,7 @@ layout = [
     ],
 ]
 window = sg.Window("Edit info", layout, finalize=True, location=(200, 200),
-                   keep_on_top=True)
+                   keep_on_top=True, enable_close_attempted_event=True)
 
 # continue from last time commented file
 try:
