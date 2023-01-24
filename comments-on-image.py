@@ -117,7 +117,8 @@ while True:
     window['rem3'].update(info[6])
 
     event, values = window.read()
-    if event == 'prev' or event == 'next' or event == sg.WIN_CLOSED:
+    if event == 'prev' or event == 'next' \
+       or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
         rem1 = values['rem1'] if values else ''
         rem2 = values['rem2'] if values else ''
         rem3 = values['rem3'] if values else ''
@@ -144,7 +145,7 @@ while True:
             if 0 > ix:
                 ix = len(jpgs) -1
 
-        if event == sg.WIN_CLOSED:
+        if event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
             break
 
 # write CSV
