@@ -153,7 +153,7 @@ while True:
             break
 
 # write CSV
-with open(csvfilename, 'w', newline='') as f:
+with open(csvfilename, 'w', encoding='shift_jis', newline='') as f:
     writer = csv.writer(f)
     for key, val in dcsv.items():
         writer.writerow(val)
