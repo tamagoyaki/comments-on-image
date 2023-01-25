@@ -55,7 +55,7 @@ from datetime import datetime
 csvfilename = "info.csv"
 
 try:
-    with open(csvfilename) as f:
+    with open(csvfilename, encoding='shift_jis') as f:
         l = csv.reader(f)
         dcsv = {row[0]: row for row in l}
         lastkey = next(reversed(dcsv), None)
@@ -67,13 +67,18 @@ except OSError:
 jpgs = glob.glob('**/*.JPG', recursive=True)
 
 # Window Layout
-layout = [
+leftpane = [
     [sg.Image(key='image')],
+]
+rightpane = [
     [sg.Text('rem1:'), sg.InputText(key='rem1', size=(4, 4)),
      sg.Text('rem2:'), sg.InputText(key='rem2', size=(4, 4)),
-     sg.Text('rem3:'), sg.InputText(key='rem3'),
+     sg.Text('rem3:'), sg.InputText(key='rem3', size=(4, 4)),
      sg.Button('prev', key='prev'), sg.Button('next', key='next'),
     ],
+]
+layout = [
+    [sg.Column(leftpane), sg.VSeparator(), sg.Column(rightpane)]
 ]
 window = sg.Window("Edit info", layout, finalize=True, location=(200, 200),
                    keep_on_top=True, enable_close_attempted_event=True)
@@ -103,7 +108,7 @@ while True:
     # and GIF
     if os.path.exists(png) is False:
         img = Image.open(jpg)
-        img.thumbnail((640, 640))
+        img.thumbnail((832, 832))
 
         os.makedirs(os.path.dirname(png), exist_ok=True)
         img.save(png)
