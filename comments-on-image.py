@@ -86,6 +86,7 @@ window.bind("<Alt_L><p>", "altp")
 window.bind("<Alt_L><n>", "altn")
 window['prev'].Widget.configure(underline=0, takefocus=0)
 window['next'].Widget.configure(underline=0, takefocus=0)
+bgcolor = window['image'].Widget['background']
 
 # continue from last time commented file
 try:
@@ -120,12 +121,19 @@ while True:
     except KeyError:
         info = [''] * 7
 
-    # show image and info then wait an event occurs
+    # show image and info
     window['image'].update(filename=png)
     window['rem1'].update(info[4])
     window['rem2'].update(info[5])
     window['rem3'].update(info[6])
 
+    # notify if there is comments.
+    if window['rem1'].get() or window['rem2'].get() or window['rem3'].get():
+        window['image'].ParentRowFrame.config(background='red')
+    else:
+        window['image'].ParentRowFrame.config(background=bgcolor)
+
+    # wait an event occurs
     event, values = window.read()
     if event in ('prev', 'altp') or event in ('next', 'altn') \
        or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
