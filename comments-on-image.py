@@ -94,6 +94,7 @@ except ValueError:
     ix = 0
 
 # one jpg at a time
+jpb = ""
 while True:
     jpg = jpgs[ix]
     exif = ExImage(jpg)
@@ -156,6 +157,11 @@ while True:
 
         if event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
             break
+
+# bring a last viewing jpg to the end of dict in order to continue from
+# the jpg next time.
+if jpg:
+    dcsv[jpg] = dcsv.pop(jpg)
 
 # write CSV
 with open(csvfilename, 'w', encoding='shift_jis', newline='') as f:
