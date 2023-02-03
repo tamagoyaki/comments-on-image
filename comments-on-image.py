@@ -52,13 +52,13 @@ from datetime import datetime
 csvfilename = "info.csv"
 headers = {
     # header : show
-    'jpg': False,
-    'camnum': False,
-    'filename': False,
-    'timestamp': False,
-    'rem1': True,
-    'rem2': True,
-    'rem3': True,
+    'jpg': {'show': False, 'size': (4, 4), 'newline': False},
+    'camnum': {'show': False, 'size': (4, 4), 'newline': False},
+    'filename': {'show': False, 'size': (4, 4), 'newline': False},
+    'timestamp': {'show': True, 'size': (16, 4), 'newline': True},
+    'rem1': {'show': True, 'size': (4, 4), 'newline': False},
+    'rem2': {'show': True, 'size': (4, 4), 'newline': True},
+    'rem3': {'show': True, 'size': (4, 4), 'newline': True},
 }
 
 try:
@@ -78,14 +78,17 @@ leftpane = [
     [sg.Image(key='image')],
 ]
 
-l1 = []
-for k, show in headers.items():
-    if show:
-        l1.append(sg.Text(k))
-        l1.append(sg.InputText(key=k, size=(4, 4)))
+rightpane = []
+line = []
+for k, v in headers.items():
+    if v['show']:
+        line.append(sg.Text(k))
+        line.append(sg.InputText(key=k, size=v['size']))
+    if v['newline']:
+        rightpane.append(line)
+        line = []
 
-l2 = [sg.Button('prev', key='prev'), sg.Button('next', key='next')]
-rightpane = [l1, l2]
+rightpane.append([sg.Button('prev', key='prev'), sg.Button('next', key='next')])
 
 layout = [
     [sg.Column(leftpane), sg.VSeparator(), sg.Column(rightpane)]
@@ -133,14 +136,14 @@ while True:
 
     # show image and info
     window['image'].update(filename=png)
-    for i, (k, show) in enumerate(headers.items()):
-        if show:
+    for i, (k, v) in enumerate(headers.items()):
+        if v['show']:
             window[k].update(info[i])
 
     # notify if there is comments.
     oncmnt = False
-    for k, show in headers.items():
-        if show and window[k].get():
+    for k, v in headers.items():
+        if v['show'] and window[k].get():
             oncmnt = True
             break
 
@@ -154,11 +157,11 @@ while True:
     if event in ('prev', 'altp') or event in ('next', 'altn') \
        or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
         debstr = ""
-        for i, (k, show) in enumerate(headers.items()):
+        for i, (k, v) in enumerate(headers.items()):
             if debstr:
                 debstr += ", "
 
-            if show:
+            if v['show']:
                 info[i] = values[k] if values else ''
                 debstr += f"{k}={info[i]}"
             elif 'jpg' == k:
