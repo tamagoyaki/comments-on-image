@@ -114,7 +114,7 @@ while True:
     exif = ExImage(jpg)
     timestamp = datetime.strptime(exif.datetime,
                                   "%Y:%m:%d %H:%M:%S").strftime(
-                                      "%Y/%m/%d %H:%M:%S")
+                                      "%Y/%m/%d %H:%M:%S").split(' ')[0]
     png = 'temp/' + jpg.replace("JPG", "PNG")
     camnumber = jpg.split('/')[1]
     filename = os.path.basename(jpg)
@@ -132,7 +132,12 @@ while True:
     try:
         info = dcsv[jpg]
     except KeyError:
+        lk = list(headers.keys())
         info = [''] * len(headers)
+        info[lk.index('jpg')] = jpg
+        info[lk.index('camnum')] = camnumber
+        info[lk.index('filename')] = filename
+        info[lk.index('timestamp')] = timestamp
 
     # show image and info
     window['image'].update(filename=png)
@@ -161,9 +166,8 @@ while True:
             if debstr:
                 debstr += ", "
 
-            if v['show']:
-                info[i] = values[k] if values else ''
-                debstr += f"{k}={info[i]}"
+            if values and k in values and '' != values[k]:
+                info[i] = values[k]
             elif 'jpg' == k:
                 info[i] = jpg
             elif 'camnum' == k:
@@ -171,7 +175,11 @@ while True:
             elif 'filename' == k:
                 info[i] = filename
             elif 'timestamp' == k:
-                info[i] = timestamp.split(' ')[0]
+                info[i] = timestamp
+            else:
+                info[i] = ''
+
+            debstr += f"{k}={info[i]}"
 
         print(debstr)
         dcsv[jpg] = info
