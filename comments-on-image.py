@@ -39,6 +39,7 @@ This is designed for python3.8 since ubuntu 22.04 has set python3.8 as default.
 
 '''
 import os
+import re
 import csv
 import glob
 import PySimpleGUI as sg
@@ -71,7 +72,7 @@ except OSError:
     lastkey = ''
 
 # list all JPG
-jpgs = glob.glob('**/*.JPG', recursive=True)
+jpgs = glob.glob('**/*.[Jj][Pp][Gg]', recursive=True)
 
 # Window Layout
 leftpane = [
@@ -115,7 +116,7 @@ while True:
     timestamp = datetime.strptime(exif.datetime,
                                   "%Y:%m:%d %H:%M:%S").strftime(
                                       "%Y/%m/%d %H:%M:%S").split(' ')[0]
-    png = 'temp/' + jpg.replace("JPG", "PNG")
+    png = 'temp/' + re.sub('\.[Jj][Pp][Gg]', ".PNG", jpg)
     camnumber = jpg.split('/')[1]
     filename = os.path.basename(jpg)
 
