@@ -46,13 +46,20 @@ from PIL import Image
 from exif import Image as ExImage
 from datetime import datetime
 
+#
 # info CSV
 #
-#   FORMAT
-#
-#     source filename, camera number, filename, date, remark, remark, remark
-#
 csvfilename = "info.csv"
+headers = {
+    # header : show
+    'jpg': False,
+    'camnum': False,
+    'filename': False,
+    'timestamp': False,
+    'rem1': True,
+    'rem2': True,
+    'rem3': True,
+}
 
 try:
     with open(csvfilename, encoding='shift_jis') as f:
@@ -70,13 +77,16 @@ jpgs = glob.glob('**/*.JPG', recursive=True)
 leftpane = [
     [sg.Image(key='image')],
 ]
-rightpane = [
-    [sg.Text('rem1:'), sg.InputText(key='rem1', size=(4, 4)),
-     sg.Text('rem2:'), sg.InputText(key='rem2', size=(4, 4)),
-     sg.Text('rem3:'), sg.InputText(key='rem3', size=(4, 4)),
-     sg.Button('prev', key='prev'), sg.Button('next', key='next'),
-    ],
-]
+
+l1 = []
+for k, show in headers.items():
+    if show:
+        l1.append(sg.Text(k))
+        l1.append(sg.InputText(key=k, size=(4, 4)))
+
+l2 = [sg.Button('prev', key='prev'), sg.Button('next', key='next')]
+rightpane = [l1, l2]
+
 layout = [
     [sg.Column(leftpane), sg.VSeparator(), sg.Column(rightpane)]
 ]
@@ -103,7 +113,7 @@ while True:
                                   "%Y:%m:%d %H:%M:%S").strftime(
                                       "%Y/%m/%d %H:%M:%S")
     png = 'temp/' + jpg.replace("JPG", "PNG")
-    camnumber = jpg.split('/')[0]
+    camnumber = jpg.split('/')[1]
     filename = os.path.basename(jpg)
 
     # Create PNG in temporaly directory since PySimpleGUI only supports PNG
@@ -119,16 +129,22 @@ while True:
     try:
         info = dcsv[jpg]
     except KeyError:
-        info = [''] * 7
+        info = [''] * len(headers)
 
     # show image and info
     window['image'].update(filename=png)
-    window['rem1'].update(info[4])
-    window['rem2'].update(info[5])
-    window['rem3'].update(info[6])
+    for i, (k, show) in enumerate(headers.items()):
+        if show:
+            window[k].update(info[i])
 
     # notify if there is comments.
-    if window['rem1'].get() or window['rem2'].get() or window['rem3'].get():
+    oncmnt = False
+    for k, show in headers.items():
+        if show and window[k].get():
+            oncmnt = True
+            break
+
+    if oncmnt:
         window['image'].ParentRowFrame.config(background='red')
     else:
         window['image'].ParentRowFrame.config(background=bgcolor)
@@ -137,20 +153,24 @@ while True:
     event, values = window.read()
     if event in ('prev', 'altp') or event in ('next', 'altn') \
        or event == sg.WINDOW_CLOSE_ATTEMPTED_EVENT:
-        rem1 = values['rem1'] if values else ''
-        rem2 = values['rem2'] if values else ''
-        rem3 = values['rem3'] if values else ''
+        debstr = ""
+        for i, (k, show) in enumerate(headers.items()):
+            if debstr:
+                debstr += ", "
 
-        print(f"camnumber={camnumber}, filename={filename}, {timestamp} "
-              f"rem1={rem1}, rem2={rem2}, rem3={rem3}")
+            if show:
+                info[i] = values[k] if values else ''
+                debstr += f"{k}={info[i]}"
+            elif 'jpg' == k:
+                info[i] = jpg
+            elif 'camnum' == k:
+                info[i] = camnumber
+            elif 'filename' == k:
+                info[i] = filename
+            elif 'timestamp' == k:
+                info[i] = timestamp.split(' ')[0]
 
-        info[0] = jpg
-        info[1] = camnumber
-        info[2] = filename
-        info[3] = timestamp.split(' ')[0]
-        info[4] = rem1
-        info[5] = rem2
-        info[6] = rem3
+        print(debstr)
         dcsv[jpg] = info
 
         if event in ('next', 'altn'):
